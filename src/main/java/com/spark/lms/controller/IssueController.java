@@ -37,12 +37,12 @@ public class IssueController {
 	@RequestMapping(value = {"/", "/list"}, method = RequestMethod.GET)
 	public String listIssuePage(Model model) {
 		model.addAttribute("issues", issueService.getAllUnreturned());
-		return "/issue/list";
+		return "issue/list";
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
 	public String newIssuePage(Model model) { 
-		return "/issue/form";
+		return "issue/form";
 	}
 	
 }

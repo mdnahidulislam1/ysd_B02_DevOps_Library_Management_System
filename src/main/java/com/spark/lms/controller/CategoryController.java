@@ -24,13 +24,13 @@ public class CategoryController {
 	@RequestMapping(value = {"/", "/list"}, method = RequestMethod.GET)
 	public String showCategoriesPage(Model model) {
 		model.addAttribute("categories", categoryService.getAll());
-		return "/category/list";
+		return "category/list";
 	}
 	
 	@RequestMapping(value = "/add", method = RequestMethod.GET)
 	public String addCategoryPage(Model model) {
 		model.addAttribute("category", new Category());
-		return "/category/form";
+		return "category/form";
 	}
 	
 	@RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
@@ -38,7 +38,7 @@ public class CategoryController {
 		Category category = categoryService.get(id);
 		if( category != null ) {
 			model.addAttribute("category", category);
-			return "/category/form";
+			return "category/form";
 		} else {
 			return "redirect:/category/add";
 		}
@@ -47,7 +47,7 @@ public class CategoryController {
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public String saveCategory(@Valid Category category, BindingResult bindingResult, final RedirectAttributes redirectAttributes) {
 		if( bindingResult.hasErrors() ) {
-			return "/category/form";
+			return "category/form";
 		}
 		
 		if( category.getId() == null ) {

@@ -34,13 +34,13 @@ public class MemberController {
 	@RequestMapping(value = {"/", "/list"},  method = RequestMethod.GET)
 	public String showMembersPage(Model model) {
 		model.addAttribute("members", memberService.getAll());
-		return "/member/list";
+		return "member/list";
 	}
 	
 	@RequestMapping(value = "/add", method = RequestMethod.GET)
 	public String addMemeberPage(Model model) {
 		model.addAttribute("member", new Member());
-		return "/member/form";
+		return "member/form";
 	}
 	
 	@RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
@@ -48,7 +48,7 @@ public class MemberController {
 		Member member = memberService.get( id );
 		if( member != null ) {
 			model.addAttribute("member", member);
-			return "/member/form";
+			return "member/form";
 		} else {
 			return "redirect:/member/add";
 		}
@@ -57,7 +57,7 @@ public class MemberController {
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public String saveMember(@Valid Member member, BindingResult bindingResult, final RedirectAttributes redirectAttributes) {
 		if( bindingResult.hasErrors() ) {
-			return "/member/form";
+			return "member/form";
 		}
 		
 		if( member.getId() == null ) {

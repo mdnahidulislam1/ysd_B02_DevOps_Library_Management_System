@@ -37,13 +37,13 @@ public class BookController {
 	@RequestMapping(value = {"", "/list"}, method = RequestMethod.GET)
 	public String showBooksPage(Model model) {
 		model.addAttribute("books", bookService.getAll());
-		return "/book/list";
+		return "book/list";
 	}
 	
 	@RequestMapping(value = "/add", method = RequestMethod.GET)
 	public String addBookPage(Model model) {
 		model.addAttribute("book", new Book());
-		return "/book/form";
+		return "book/form";
 	}
 	
 	@RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
@@ -51,7 +51,7 @@ public class BookController {
 		Book book = bookService.get(id);
 		if( book != null ) {
 			model.addAttribute("book", book);
-			return "/book/form";
+			return "book/form";
 		} else {
 			return "redirect:/book/add";
 		}
@@ -60,13 +60,13 @@ public class BookController {
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public String saveBook(@Valid Book book, BindingResult bindingResult, final RedirectAttributes redirectAttributes) {
 		if( bindingResult.hasErrors() ) {
-			return "/book/form";
+			return "book/form";
 		}
 		
 		if( book.getId() == null ) {
 			if( bookService.getByTag(book.getTag()) != null ) {
 				bindingResult.rejectValue("tag", "tag", "Tag already exists");
-				return "/book/form";
+				return "book/form";
 			} else {
 				bookService.addNew(book);
 				redirectAttributes.addFlashAttribute("successMsg", "'" + book.getTitle() + "' is added as a new Book.");
