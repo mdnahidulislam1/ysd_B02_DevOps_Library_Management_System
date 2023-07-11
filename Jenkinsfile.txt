@@ -5,12 +5,12 @@ pipeline {
     }
 
     stages {
-        stage('Git Clone') {
+        stage('Git checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/mdnahidulislam1/ysd_B02_DevOps_Library_Management_System.git'
             }
         }
-        stage('mvn Build') {
+        stage('Maven Build') {
              steps {
                   sh 'mvn clean install'
                 }
@@ -31,5 +31,16 @@ pipeline {
                 }
             }
         }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script{
+                     withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'kube-cred', namespace: '', restrictKubeConfigAccess: false, serverUrl: ''){
+                          sh 'kubectl apply -f kubernetes-deploy/app.yml'
+                  }
+                    
+                }
+            }
+        }
+        
     }
 }
