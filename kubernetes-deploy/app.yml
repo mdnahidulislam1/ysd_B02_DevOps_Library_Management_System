@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
       - name: webserver
-        image: nahid003/k8s_docker_image:latest
+        image: nahid003/k8s_docker_image:TAG
         env:
         - name: MYSQL_HOST
           value: my-mysql-service
