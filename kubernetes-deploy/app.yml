@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /tmp/mysql
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-webserver-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-webserver
+  template:
+    metadata:
+      labels:
+        app: my-webserver
+    spec:
+      containers:
+      - name: webserver
+        image: nahid003/k8s_docker_image:latest
+        env:
+        - name: MYSQL_HOST
+          value: my-mysql-service
+        - name: MYSQL_PORT
+          value: "3306"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-webserver-service
+spec:
+  selector:
+    app: my-webserver
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+    nodePort: 30090
+  type: NodePort
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config-map
+data:
+  config.properties: |
+    db.username: root
+    db.name: sparklmsdb
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: my-mysql-replica-set
+spec:
+  serviceName: my-mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-mysql
+  template:
+    metadata:
+      labels:
+        app: my-mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secrets
+              key: root-password
+        ports:
+        - containerPort: 3306
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-mysql-service
+spec:
+  selector:
+    app: my-mysql
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306

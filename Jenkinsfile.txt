@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    tools{
+         maven"Maven-3.9.3"
+    }
+
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'main', url: 'https://github.com/mdnahidulislam1/ysd_B02_DevOps_Library_Management_System.git'
+            }
+        }
+        stage('mvn Build') {
+             steps {
+                  sh 'mvn clean install'
+                }
+            }
+          stage('Docker Image Build') {
+            steps {
+                script{
+                    img_todo = docker.build('nahid003/k8s_docker_image')
+                }
+            }
+        }
+        stage('Push to docker') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-key', url: '') {
+                        img_todo.push()
+                    }
+                }
+            }
+        }
+    }
+}
