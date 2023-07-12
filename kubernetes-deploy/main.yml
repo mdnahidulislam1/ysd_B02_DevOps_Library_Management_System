@@ -59,7 +59,7 @@ spec:
     spec:
       containers:
       - name: webserver
-        image: nahid003/test-job:43
+        image: nahid003/test-job:TAG
         env:
         - name: MYSQL_HOST
           value: my-mysql-service
@@ -99,7 +99,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql:latest
+        image: mysql:8.0.19
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
