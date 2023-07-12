@@ -50,6 +50,34 @@ pipeline {
                 }
             }
         }
+stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'kube_config', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                        def sqlDeploymentExists = sh(
+                            script: 'kubectl get pod -l app=my-mysql -o name',
+                            returnStatus: true
+                        )
+                        def jarDeploymentExists = sh(
+                            script: 'kubectl get pod -l app=my-webserver -o name',
+                            returnStatus: true
+                        )
+
+
+                        if (jarDeploymentExists == 0 || sqlDeploymentExists == 0) {
+                            try {
+                                sh 'kubectl delete -f app.yml'
+                            } catch (Exception e) {
+                                echo "Error deleting deployments: ${e.getMessage()}"
+                            }
+                        }
+                        
+                        sh 'kubectl apply -f app.yml'
+                  }
+                }
+              }
+            }
+            
         
     }
 }
