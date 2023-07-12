@@ -39,8 +39,8 @@ metadata:
   name: mysql-secrets
 type: Opaque
 data:
-  MYSQL_PASSWORD: YmppdDEyMzQ
-  MYSQL_ROOT_PASSWORD: YmppdDEyMzQ
+  MYSQL_PASSWORD: YmppdDEyMzQ=
+  MYSQL_ROOT_PASSWORD: YmppdDEyMzQ=
 ---
 apiVersion: apps/v1
 kind: Deployment
