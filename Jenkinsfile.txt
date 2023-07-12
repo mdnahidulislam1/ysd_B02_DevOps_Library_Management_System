@@ -56,7 +56,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'kube_config', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'kube-cred', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                        sh 'sed -i "s/TAG/${BUILD_ID}/g" kubernetes-deploy/main.yml'
                         def myqlPodExists = sh(
                             script: 'kubectl get pod -l app=my-mysql -o name',
                             returnStatus: true
@@ -65,23 +66,20 @@ pipeline {
                             script: 'kubectl get pod -l app=my-webserver -o name',
                             returnStatus: true
                         )
-
-
                         if (webServerPodtExists == 0 || myqlPodExists == 0) {
                             try {
-                                sh 'kubectl delete -f app.yml'
+                                sh 'kubectl delete -f main.yml'
                             } catch (Exception e) {
                                 echo "Error deleting pods: ${e.getMessage()}"
                             }
                         }
                         
-                        sh 'kubectl apply -f app.yml'
+                        sh 'kubectl apply -f main.yml'
                   }
                 }
               }
             }
             
-        
         
     }
     post {
