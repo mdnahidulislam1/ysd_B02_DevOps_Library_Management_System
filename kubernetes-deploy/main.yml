@@ -29,9 +29,8 @@ kind: ConfigMap
 metadata:
   name: my-config-map
 data:
-  config.properties: |
-    MYSQL_DATABASE: sparklmsdb
-    MYSQL_ROOT_USER: root
+  MYSQL_DATABASE: sparklmsdb 
+  MYSQL_ROOT_USER: root
     
 ---
 apiVersion: v1
