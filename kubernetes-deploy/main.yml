@@ -30,8 +30,9 @@ metadata:
   name: my-config-map
 data:
   config.properties: |
-    MYSQL_ROOT_USER: root
     MYSQL_DATABASE: sparklmsdb
+    MYSQL_ROOT_USER: root
+    
 ---
 apiVersion: v1
 kind: Secret
@@ -58,7 +59,7 @@ spec:
     spec:
       containers:
       - name: webserver
-        image: nahid003/k8s_docker_image:latest
+        image: nahid003/k8s_docker_image:TAG
         env:
         - name: MYSQL_HOST
           value: my-mysql-service
