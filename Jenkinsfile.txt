@@ -103,7 +103,6 @@ pipeline {
 
 =========================================
 
-
 pipeline {
     agent any
     
@@ -124,13 +123,14 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: '35.86.247.237', keyFileVariable: 'SSH_KEY')]) {
                         def sourceFilePath = '/var/lib/jenkins/workspace/aws-deployment-pipeline/target/spark-lms-0.0.1-SNAPSHOT.jar'
                         def destinationPath = '/home/ec2-user/'
+                        def sshCmd = "ssh -i $SSH_KEY ec2-user@35.86.247.237 'pkill java'"
+                        sh sshCmd
                         def scpCommand = "scp -i $SSH_KEY $sourceFilePath ec2-user@35.86.247.237:$destinationPath"  
                         sh scpCommand
-                       def sshCommand = "ssh -i $SSH_KEY ec2-user@35.86.247.237 'java -jar /home/ec2-user/spark-lms-0.0.1-SNAPSHOT.jar &1 &2/dev/null'"
-                         sh sshCommand
+                        def sshCommand = "ssh -i $SSH_KEY ec2-user@35.86.247.237 'java -jar /home/ec2-user/spark-lms-0.0.1-SNAPSHOT.jar &> /dev/null &'"
+                        sh sshCommand
                          
-                          // def sshCmd = "ssh -i $SSH_KEY ec2-user@35.86.247.237 'pkill java'"
-                        // sh sshCmd
+                          
                        
                     }
                 }
