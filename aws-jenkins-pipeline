@@ -128,3 +128,94 @@ pipeline {
         
     }
 }
+
+=============================================add try catch block==============================
+pipeline {
+    agent any
+    
+    stages {
+         stage('Git Clone') {
+            steps {
+                git branch: 'main', credentialsId: 'aws-git', url: 'https://github.com/mdnahidulislam1/ysd_B02_DevOps_Library_Management_System.git'
+                
+            }
+        }
+         stage('Modify application.properties content') {
+            steps {
+               script {
+                    withCredentials([
+                          string(credentialsId: 'DB_URL', variable: 'dbUrl'),
+                          string(credentialsId: 'DB_USERNAME', variable: 'dbUsername'),
+                          string(credentialsId: 'DB_PASSWORD', variable: 'dbPassword')
+            ]) {
+                sh """
+                sed -i "s|spring.datasource.url =.*|spring.datasource.url = \${dbUrl}|g" /var/lib/jenkins/workspace/aws-deployment-pipeline/src/main/resources/application.properties
+                sed -i "s|spring.datasource.username =.*|spring.datasource.username = \${dbUsername}|g" /var/lib/jenkins/workspace/aws-deployment-pipeline/src/main/resources/application.properties
+                sed -i "s|spring.datasource.password =.*|spring.datasource.password = \${dbPassword}|g" /var/lib/jenkins/workspace/aws-deployment-pipeline/src/main/resources/application.properties
+                """
+            }
+          }
+       }
+     }
+    
+         
+        stage('Maven Build') {
+             steps {
+                  sh 'mvn clean install'
+                }
+            }
+            
+          stage('SSH to EC2') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-user-key', keyFileVariable: 'SSH_KEY')]) {
+                    script {
+                        def sshCommand = "ssh -o StrictHostKeyChecking=no -i $SSH_KEY ec2-user@35.86.247.237"
+                        sh sshCommand
+                    }
+                }
+            }
+        }
+            
+        stage('Copy JAR to EC2') {
+            steps {
+                script {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-user-key', keyFileVariable: 'SSH_KEY')]) {
+                        def sourceFilePath = '/var/lib/jenkins/workspace/aws-deployment-pipeline/target/spark-lms-0.0.1-SNAPSHOT.jar'
+                        def destinationPath = '/home/ec2-user/'
+                        def scpCommand = "scp -i $SSH_KEY $sourceFilePath ec2-user@35.86.247.237:$destinationPath"  
+                        sh scpCommand
+                    }
+                }
+            }
+        }
+        
+       
+        stage('Deploy project') {
+          steps {
+               script {
+                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-user-key', keyFileVariable: 'SSH_KEY')]) {
+                  def sshDeployCommandTerminate = "ssh -i $SSH_KEY ec2-user@35.86.247.237 'pkill java'"
+                    def sshDeployCommandStart = "ssh -i $SSH_KEY ec2-user@35.86.247.237 'java -jar /home/ec2-user/spark-lms-0.0.1-SNAPSHOT.jar &> /dev/null &'"
+
+                    try {
+                       def terminateResult = sh(returnStatus: true, script: sshDeployCommandTerminate)
+                       if (terminateResult != 0) {
+                         sshDeployCommandTerminate = true
+                      }
+                     println("Java processes terminated successfully.")
+
+                      sh sshDeployCommandStart
+                        println("Java application started successfully.")
+                 } catch (Exception e) {
+                    println("Failed to deploy the Java application: ${e.getMessage()}")
+                }
+            }
+        }
+    }
+}
+
+        
+        
+    }
+}
+
