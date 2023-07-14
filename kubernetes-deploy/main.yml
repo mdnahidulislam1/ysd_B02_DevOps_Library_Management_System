@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
       - name: webserver
-        image: nahid003/test-job:TAG
+        image: nahid003/on-premise-deployment-pipeline:TAG
         env:
         - name: MYSQL_HOST
           value: my-mysql-service
