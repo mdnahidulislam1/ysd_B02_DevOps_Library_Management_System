@@ -15,9 +15,9 @@ pipeline {
             steps {
                script {
                     withCredentials([
-                          string(credentialsId: 'DB_URL', variable: 'onPremiseDbUrl'),
-                          string(credentialsId: 'DB_USERNAME', variable: 'dbUsername'),
-                          string(credentialsId: 'DB_PASSWORD', variable: 'dbPassword')
+                          string(credentialsId: 'onPremiseDbUrl', variable: 'dbUrl'),
+                          string(credentialsId: 'onPremiseUser', variable: 'dbUsername'),
+                          string(credentialsId: 'onPremisePass', variable: 'dbPassword')
             ]) {
                 sh """
                 sed -i "s|spring.datasource.url =.*|spring.datasource.url = \${dbUrl}|g" /var/lib/jenkins/workspace/on-premise-deployment-pipeline/src/main/resources/application.properties
@@ -85,10 +85,10 @@ pipeline {
         
     }
     post {
-        always {
-            echo 'One way or another, I have finished'
-            deleteDir() /* clean up our workspace */
-        }
+        // always {
+        //     echo 'One way or another, I have finished'
+        //     deleteDir() 
+        // }
         success {
             echo 'I succeeded!'
         }
