@@ -1,0 +1,26 @@
+---
+- name: Copy and start service playbook
+  hosts: ec2
+  become: true
+  vars:
+    jar_file_path: "/var/lib/jenkins/workspace/on-premise-deployment-pipeline/target/spark-lms-0.0.1-SNAPSHOT.jar"
+    excute_path: "/home/ec2-user/spark-lms-0.0.1-SNAPSHOT.jar"
+  tasks:
+    - name: Copy JAR file to slave
+      copy:
+        src: "{{ jar_file_path }}"
+        dest: "/home/ec2-user"
+        mode: 0644
+      register: copy_result
+    - name: Stop Java JAR file
+      command: "killall -9 java"
+      ignore_errors: true
+      changed_when: false
+
+    - name: Start Java JAR file
+      command: "java -jar {{ excute_path }}"
+      async: 0
+      poll: 0
+      register: java_process
+      ignore_errors: true
+      changed_when: false
