@@ -61,16 +61,11 @@ pipeline {
     stages {
          stage('Git Clone') {
             steps {
-                git branch: 'main', credentialsId: 'aws-git', url: 'https://github.com/mdnahidulislam1/ysd_B02_DevOps_Library_Management_System.git'}
-        }
-        stage('Maven Build') {
-             steps {
-                  sh 'mvn clean install'
-                }
+                git branch: 'main', credentialsId: 'aws-git', url: 'https://github.com/mdnahidulislam1/ysd_B02_DevOps_Library_Management_System.git'
+                
             }
-            
-            
-        stage('Modify application.properties content') {
+        }
+         stage('Modify application.properties') {
             steps {
                script {
                     withCredentials([
@@ -84,9 +79,16 @@ pipeline {
                 sed -i "s|spring.datasource.password =.*|spring.datasource.password = \${dbPassword}|g" /var/lib/jenkins/workspace/aws-deployment-pipeline/src/main/resources/application.properties
                 """
             }
-        }
-     }
-    }
+         }
+       }
+      }
+         
+        stage('Maven Build') {
+             steps {
+                  sh 'mvn clean install'
+                }
+            }
+            
           stage('SSH to EC2') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-user-key', keyFileVariable: 'SSH_KEY')]) {
@@ -126,4 +128,3 @@ pipeline {
         
     }
 }
-
