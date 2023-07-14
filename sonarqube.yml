@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    tools{
+         maven"maven3.9.3"
+    }
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'main', credentialsId: 'aws-git', url: 'https://github.com/mdnahidulislam1/Bjit-Final-Project-01.git'}
+        }
+    
+        stage('Maven Build') {
+             steps {
+                  sh 'mvn clean install'
+                }
+            }
+      
+
+            stage('SonarQube Analysis') {
+                 steps {
+                      withCredentials([string(credentialsId: 'sonar-id', variable: 'SONARQUBE_TOKEN')]) {
+                           withSonarQubeEnv('sonarqube8.9') {
+                                script {
+                                         sh "mvn sonar:sonar -Dsonar.login=${SONARQUBE_TOKEN}"
+                                    }
+                             }
+                        }
+                    }
+                 }
+       
+   
+        
+    }
+   
+}
