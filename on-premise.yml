@@ -30,25 +30,23 @@ pipeline {
             }
         }
 
-        // Remaining stages are commented out
+        stage('Maven Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
 
-        // stage('Maven Build') {
-        //     steps {
-        //         sh 'mvn clean install'
-        //     }
-        // }
-
-        // stage('SonarQube Analysis') {
-        //     steps {
-        //         withCredentials([string(credentialsId: 'sonar-id', variable: 'SONARQUBE_TOKEN')]) {
-        //             withSonarQubeEnv('sonarqube8.9') {
-        //                 script {
-        //                     sh "mvn sonar:sonar -Dsonar.login=${SONARQUBE_TOKEN}"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-id', variable: 'SONARQUBE_TOKEN')]) {
+                    withSonarQubeEnv('sonarqube8.9') {
+                        script {
+                            sh "mvn sonar:sonar -Dsonar.login=${SONARQUBE_TOKEN}"
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Docker Image Build') {
             steps {
@@ -66,51 +64,51 @@ pipeline {
             }
         }
 
-        // stage('Push to Docker Registry') {
-        //     steps {
-        //         script {
-        //             withDockerRegistry(credentialsId: 'docker-key') {
-        //                 dockerImage.push()
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Push to Docker Registry') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker-key') {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
 
-        // stage('Docker Image Remove') {
-        //     steps {
-        //         sh "docker rmi nahid003/${JOB_NAME}:${BUILD_ID}"
-        //     }
-        // }
+        stage('Docker Image Remove') {
+            steps {
+                sh "docker rmi nahid003/${JOB_NAME}:${BUILD_ID}"
+            }
+        }
 
-        // stage('Deploy to Kubernetes') {
-        //     steps {
-        //         script {
-        //             withKubeConfig(credentialsId: 'kube-cred') {
-        //                 sh 'sed -i "s/TAG/${BUILD_ID}/g" kubernetes-deploy/main.yml'
-        //                 def myqlPodExists = sh(
-        //                     script: 'kubectl get pod -l app=my-mysql -o name',
-        //                     returnStatus: true
-        //                 )
-        //                 def webServerPodtExists = sh(
-        //                     script: 'kubectl get pod -l app=my-webserver -o name',
-        //                     returnStatus: true
-        //                 )
-        //                 if (webServerPodtExists == 0 || myqlPodExists == 0) {
-        //                     try {
-        //                         sh 'kubectl delete -f main.yml'
-        //                     } catch (Exception e) {
-        //                         echo "Error deleting pods: ${e.getMessage()}"
-        //                     }
-        //                 }
-        //                 sh 'kubectl apply -f kubernetes-deploy/main.yml'
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withKubeConfig(credentialsId: 'kube-cred') {
+                        sh 'sed -i "s/TAG/${BUILD_ID}/g" kubernetes-deploy/main.yml'
+                        def myqlPodExists = sh(
+                            script: 'kubectl get pod -l app=my-mysql -o name',
+                            returnStatus: true
+                        )
+                        def webServerPodtExists = sh(
+                            script: 'kubectl get pod -l app=my-webserver -o name',
+                            returnStatus: true
+                        )
+                        if (webServerPodtExists == 0 || myqlPodExists == 0) {
+                            try {
+                                sh 'kubectl delete -f main.yml'
+                            } catch (Exception e) {
+                                echo "Error deleting pods: ${e.getMessage()}"
+                            }
+                        }
+                        sh 'kubectl apply -f kubernetes-deploy/main.yml'
+                    }
+                }
+            }
+        }
     }
 
     post {
-        success {
+       success {
             // Slack notification for successful build
             slackSend channel: '#sparklms', color: 'good',
                       message: "Build successful: ${currentBuild.fullDisplayName}"
@@ -123,22 +121,21 @@ pipeline {
 
         always {
             // Extend email notification
-            script {
+             script {
                 if (currentBuild.result != 'SUCCESS') {
-                    emailext body: "Build failed. Please check the console output for more details.",
+                    emailext body: "Build failed. Please check the console output for more details.\n\nContents of trivy.txt:\n\n${readFile('trivy.txt')}",
                         subject: "Build Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
                         to: "nahidulislam.devskill@gmail.com",
                         replyTo: "nahidulislam.devskill@gmail.com",
+                        attachmentsPattern: 'trivy.txt',
                         mimeType: 'text/plain'
                 } else {
                     emailext body: "Build successful. You can access the artifacts at: ${env.BUILD_URL}artifact/*zip*/archive.zip",
                         subject: "Build Successful: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
                         to: "nahidulislam.devskill@gmail.com",
                         replyTo: "nahidulislam.devskill@gmail.com",
+                        attachmentsPattern: 'trivy.txt',
                         mimeType: 'text/plain'
-
-                    // Add trivy.txt file
-                    writeFile file: 'trivy.txt', text: 'Contents of the trivy.txt file'
                 }
             }
         }
