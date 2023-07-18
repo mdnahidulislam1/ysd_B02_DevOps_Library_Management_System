@@ -52,4 +52,37 @@ pipeline {
             }
         }
     }
+ post {
+       success {
+            // Slack notification for successful build
+            slackSend channel: '#sparklms', color: 'good',
+                      message: "Build successful: ${currentBuild.fullDisplayName}"
+        }
+        failure {
+            // Slack notification for failed build
+            slackSend channel: '#sparklms', color: 'danger',
+                      message: "Build failed: ${currentBuild.fullDisplayName}"
+        }
+
+        always {
+            // Extend email notification
+             script {
+                if (currentBuild.result != 'SUCCESS') {
+                    emailext body: "Build failed. Please check the console output for more details.\n\nContents of trivy.txt:\n\n${readFile('trivy.txt')}",
+                        subject: "Build Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                        to: "nahidulislam.devskill@gmail.com",
+                        replyTo: "nahidulislam.devskill@gmail.com",
+                        attachmentsPattern: 'trivy.txt',
+                        mimeType: 'text/plain'
+                } else {
+                    emailext body: "Build successful. You can access the artifacts at: ${env.BUILD_URL}artifact/*zip*/archive.zip",
+                        subject: "Build Successful: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                        to: "nahidulislam.devskill@gmail.com",
+                        replyTo: "nahidulislam.devskill@gmail.com",
+                        attachmentsPattern: 'trivy.txt',
+                        mimeType: 'text/plain'
+                }
+            }
+        }
+    }
 }
