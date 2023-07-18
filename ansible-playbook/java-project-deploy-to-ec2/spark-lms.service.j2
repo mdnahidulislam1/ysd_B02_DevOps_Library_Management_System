@@ -1,0 +1,14 @@
+[Unit]
+Description=Running java applcation for DevOps Project
+After=network.target
+
+[Service]
+User=ec2-user
+ExecStart=java -jar /home/ec2-user/spark-lms-0.0.1-SNAPSHOT.jar
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
+
