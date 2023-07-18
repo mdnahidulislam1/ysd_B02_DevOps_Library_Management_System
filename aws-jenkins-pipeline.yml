@@ -1,8 +1,8 @@
 pipeline {
     agent any
-      // triggers{
-    //     pollSCM('H/2 * * * *')
-    // }
+    triggers{
+        pollSCM('H/2 * * * *')
+     }
     environment {
         DB_URL = credentials('DB_URL')
         DB_USERNAME = credentials('DB_USERNAME')
