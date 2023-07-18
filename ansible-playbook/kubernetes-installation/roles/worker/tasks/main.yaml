@@ -1,0 +1,15 @@
+- name: Fetch join_command.txt Control Node
+  copy:
+    src:  /tmp/join_command.txt
+    dest: /tmp/
+
+- name: Read join_command.txt
+  command: cat /tmp/join_command.txt
+  register: join_command_output
+  changed_when: false
+
+- name: Execute join command
+  shell: "{{ join_command_output.stdout }}"
+  args:
+    executable: /bin/bash
+  changed_when: false

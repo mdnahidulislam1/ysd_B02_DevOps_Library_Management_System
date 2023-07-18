@@ -1,0 +1,18 @@
+---
+- name: Common Tasks
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- name: Master Tasks
+  hosts: master
+  become: true
+  roles:
+    - master
+
+- name: Worker Tasks
+  hosts: worker
+  become: true
+  roles:
+    - worker

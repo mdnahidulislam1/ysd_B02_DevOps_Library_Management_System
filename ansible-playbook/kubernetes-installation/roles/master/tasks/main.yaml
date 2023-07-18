@@ -1,0 +1,73 @@
+- name: Pull Kubernetes images
+  command: sudo kubeadm config images pull
+
+- name: Enable IP forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+    reload: yes
+
+- name: Initialize Kubernetes cluster
+  command: kubeadm init --control-plane-endpoint={{ inventory_hostname }} --pod-network-cidr=10.10.0.0/16 --cri-socket=unix:///run/containerd/containerd.sock
+  register: kubeadm_output
+
+- name: Create k8s-worker-add-code directory
+  file:
+    path: "{{ ansible_user_dir }}/k8s-worker-add-code"
+    state: directory
+    mode: '0755'
+
+- name: Save the whole output
+  copy:
+    content: "{{ kubeadm_output.stdout }}"
+    dest: "{{ ansible_user_dir }}/k8s-worker-add-code/init_output.txt"
+    
+- name: Get the last two lines of the output
+  shell: tail -n 2 "{{ ansible_user_dir }}/k8s-worker-add-code/init_output.txt"
+  register: join_command_output
+
+- name: Create join_command file
+  copy:
+    content: "{{ join_command_output.stdout }}"
+    dest: "{{ ansible_user_dir }}/k8s-worker-add-code/join_command.txt"
+
+- name: Fetch the file from the master to control
+  fetch:
+     src: /root/k8s-worker-add-code/join_command.txt
+     dest: /tmp/ 
+     flat: yes
+
+- name: Create .kube directory
+  file:
+    path: "{{ ansible_env.HOME }}/.kube"
+    state: directory
+    mode: '0755'
+
+- name: Copy admin.conf to user's kubeconfig
+  command: cp -i /etc/kubernetes/admin.conf "{{ ansible_env.HOME }}/.kube/config"
+
+- name: Set ownership of kubeconfig file
+  command: chown "{{ ansible_user_id }}:{{ ansible_user_id }}" "{{ ansible_env.HOME }}/.kube/config"
+  become: true
+
+- name: Set KUBECONFIG environment variable
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: 'export KUBECONFIG=/etc/kubernetes/admin.conf'
+    create: yes
+
+- name: Install wget
+  yum:
+    name: wget
+    state: present
+
+- name: Download Calico manifest
+  command: wget -O calico.yaml https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
+  args:
+    chdir: "{{ ansible_env.HOME }}"
+
+- name: Apply Calico manifest
+  command: kubectl apply -f calico.yaml
+  args:
+    chdir: "{{ ansible_env.HOME }}"
