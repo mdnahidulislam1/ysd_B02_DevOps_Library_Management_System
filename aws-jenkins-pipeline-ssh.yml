@@ -60,6 +60,7 @@ pipeline {
                 script {
                     def sshDeployCommandTerminate = "ssh -i ${SSH_KEY} ec2-user@${EC2_HOST} 'pkill java'"
                     def sshDeployCommandStart = "ssh -i ${SSH_KEY} ec2-user@${EC2_HOST} 'java -jar ~/${JAR_FILENAME} &> /dev/null &'"
+                    //nohup java -jar /home/ec2-user/spark-lms-0.0.1-SNAPSHOT.jar >/dev/null 2>&1 &
 
                     try {
                         sh returnStatus: true, script: sshDeployCommandTerminate
