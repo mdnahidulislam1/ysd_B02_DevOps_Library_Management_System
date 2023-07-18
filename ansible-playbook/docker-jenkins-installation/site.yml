@@ -1,0 +1,10 @@
+---
+- name: Apply Jenkins and Docker roles
+  hosts: jenkins-docker
+  become: true
+  connection: local
+
+  roles:
+    - jenkins
+    - docker
+
