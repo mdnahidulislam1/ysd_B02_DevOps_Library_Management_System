@@ -35,7 +35,7 @@ pipeline {
                 sh 'mvn clean install'
             }
         }
-         stage('SetUp PlayBook Run') {
+         stage('Deploy Project') {
             steps {
                 ansiblePlaybook credentialsId: 'ansible-master-private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: "ansible-playbook/java-project-deploy-to-ec2/java-service.yml"
             }
