@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    environment {
+        DB_URL = credentials('DB_URL')
+        DB_USERNAME = credentials('DB_USERNAME')
+        DB_PASSWORD = credentials('DB_PASSWORD')
+        SSH_KEY = credentials('ec2-user-key')
+        EC2_HOST = '34.221.200.56'
+        JAR_FILENAME = 'spark-lms-0.0.1-SNAPSHOT.jar'
+        WORKSPACE_PATH = "/var/lib/jenkins/workspace/aws-deployment-pipeline"
+        JAR_PATH = "$WORKSPACE_PATH/target/$JAR_FILENAME"
+    }
+
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'main', credentialsId: 'aws-git', url: 'https://github.com/mdnahidulislam1/ysd_B02_DevOps_Library_Management_System.git'
+            }
+        }
+
+        stage('Modify application.properties content') {
+            steps {
+                script {
+                    sh """
+                    sed -i "s|spring.datasource.url =.*|spring.datasource.url = \${DB_URL}|g" $WORKSPACE_PATH/src/main/resources/application.properties
+                    sed -i "s|spring.datasource.username =.*|spring.datasource.username = \${DB_USERNAME}|g" $WORKSPACE_PATH/src/main/resources/application.properties
+                    sed -i "s|spring.datasource.password =.*|spring.datasource.password = \${DB_PASSWORD}|g" $WORKSPACE_PATH/src/main/resources/application.properties
+                    """
+                }
+            }
+        }
+
+        stage('Maven Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+         stage('SetUp PlayBook Run') {
+            steps {
+                ansiblePlaybook credentialsId: 'ansible-master-private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: "ansible-playbook/java-project-deploy-to-ec2/java-service.yml"
+            }
+        }
+    }
+}
