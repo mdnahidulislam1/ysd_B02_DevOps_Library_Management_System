@@ -8,10 +8,7 @@ pipeline {
         DB_USERNAME = credentials('DB_USERNAME')
         DB_PASSWORD = credentials('DB_PASSWORD')
         SSH_KEY = credentials('ec2-user-key')
-        EC2_HOST = '34.221.200.56'
-        JAR_FILENAME = 'spark-lms-0.0.1-SNAPSHOT.jar'
         WORKSPACE_PATH = "/var/lib/jenkins/workspace/aws-deployment-pipeline"
-        JAR_PATH = "$WORKSPACE_PATH/target/$JAR_FILENAME"
     }
 
     stages {
