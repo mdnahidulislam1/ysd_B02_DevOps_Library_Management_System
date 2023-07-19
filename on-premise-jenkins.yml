@@ -126,7 +126,7 @@ pipeline {
             // Extend email notification
              script {
                 if (currentBuild.result != 'SUCCESS') {
-                    emailext body: "Build failed. Please check the console output for more details.\n\nContents of trivy.txt:\n\n${readFile('trivy.txt')}",
+                    emailext body: "Build failed. Please check the console output for more details.",
                         subject: "Build Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
                         to: "nahidulislam.devskill@gmail.com",
                         replyTo: "nahidulislam.devskill@gmail.com",
