@@ -3,9 +3,9 @@ pipeline {
      tools {
         maven "Maven-3.9.3"
     }
-    # triggers{
-    #     pollSCM('H/2 * * * *')
-    #  }
+    triggers{
+        pollSCM('H/2 * * * *')
+     }
     environment {
         DB_URL = credentials('DB_URL')
         DB_USERNAME = credentials('DB_USERNAME')
@@ -46,7 +46,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withCredentials([string(credentialsId: 'sonar-id', variable: 'SONARQUBE_TOKEN')]) {
+                withCredentials([string(credentialsId: 'aws-sonar-id', variable: 'SONARQUBE_TOKEN')]) {
                     withSonarQubeEnv('sonarqube8.9') {
                         script {
                             sh "mvn sonar:sonar -Dsonar.login=${SONARQUBE_TOKEN}"
