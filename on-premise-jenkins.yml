@@ -62,7 +62,7 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 script {
-                    sh 'trivy image --severity HIGH,CRITICAL nahid003/${JOB_NAME}:${BUILD_ID} > trivy.txt'
+                    sh 'trivy image --scanners vuln nahid003/${JOB_NAME}:${BUILD_ID} > trivy.txt'
                 }
             }
         }
