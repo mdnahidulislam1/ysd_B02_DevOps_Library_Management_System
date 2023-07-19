@@ -20,6 +20,12 @@ pipeline {
                 git branch: 'main', credentialsId: 'aws-git', url: 'https://github.com/mdnahidulislam1/ysd_B02_DevOps_Library_Management_System.git'
             }
         }
+        stage('Trivy Scan (Git)') {
+          steps {
+        // Scan the cloned repository using Trivy
+          sh 'trivy fs --severity HIGH,CRITICAL --ignore-unfixed $WORKSPACE_PATH > trivy_git_scan.txt'
+           }
+        }
 
         stage('Modify application.properties content') {
             steps {
@@ -71,18 +77,18 @@ pipeline {
             // Extend email notification
              script {
                 if (currentBuild.result != 'SUCCESS') {
-                    emailext body: "Build failed. Please check the console output for more details.\n\nContents of trivy.txt:\n\n${readFile('trivy.txt')}",
+                    emailext body: "Build failed. Please check the console output for more details.",
                         subject: "Build Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
                         to: "nahidulislam.devskill@gmail.com",
                         replyTo: "nahidulislam.devskill@gmail.com",
-                        attachmentsPattern: 'trivy.txt',
+                        attachmentsPattern: 'trivy_git_scan.txt',
                         mimeType: 'text/plain'
                 } else {
                     emailext body: "Build successful. You can access the artifacts at: ${env.BUILD_URL}artifact/*zip*/archive.zip",
                         subject: "Build Successful: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
                         to: "nahidulislam.devskill@gmail.com",
                         replyTo: "nahidulislam.devskill@gmail.com",
-                        attachmentsPattern: 'trivy.txt',
+                        attachmentsPattern: 'trivy_git_scan.txt',
                         mimeType: 'text/plain'
                 }
             }
