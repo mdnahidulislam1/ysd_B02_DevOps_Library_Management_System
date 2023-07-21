@@ -47,7 +47,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'aws-sonar-id', variable: 'SONARQUBE_TOKEN')]) {
-                    withSonarQubeEnv('sonarqube8.9') {
+                    withSonarQubeEnv('SonarQube8.9') {
                         script {
                             sh "mvn sonar:sonar -Dsonar.login=${SONARQUBE_TOKEN}"
                         }
