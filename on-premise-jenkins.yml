@@ -63,7 +63,7 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 script {
-                   sh "trivy image --ignore-unfixed ${imageName} > trivy.txt"
+                   sh "trivy image --ignore-unfixed --scanners vuln ${imageName} > trivy.txt"
 
                 }
             }
