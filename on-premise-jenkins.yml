@@ -55,7 +55,6 @@ pipeline {
         stage('Docker Image Build') {
             steps {
                 script {
-                # def imageName = "nahid003/${JOB_NAME}:${BUILD_ID}"
                 dockerImage = docker.build(imageName)
                 }
             }
