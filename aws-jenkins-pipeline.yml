@@ -23,7 +23,7 @@ pipeline {
         stage('Trivy Scan (Git)') {
           steps {
         // Scan the cloned repository using Trivy
-          sh 'trivy fs --severity HIGH,CRITICAL --ignore-unfixed $WORKSPACE_PATH > trivy_git_scan.txt'
+          sh 'trivy fs --ignore-unfixed $WORKSPACE_PATH > trivy_git_scan.txt'
            }
         }
 
