@@ -54,7 +54,8 @@ pipeline {
         stage('Docker Image Build') {
             steps {
                 script {
-                    dockerImage = docker.build("nahid003/${JOB_NAME}:${BUILD_ID}")
+                def imageName = "nahid003/${JOB_NAME}:${BUILD_ID}"
+                dockerImage = docker.build(imageName)
                 }
             }
         }
@@ -62,7 +63,7 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 script {
-                    sh 'trivy fs --ignore-unfixed $WORKSPACE_PATH > trivy.txt'
+                   sh "trivy image --ignore-unfixed ${imageName} > trivy.txt"
 
                 }
             }
