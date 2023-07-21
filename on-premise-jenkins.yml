@@ -12,6 +12,7 @@ pipeline {
         DB_USERNAME = credentials('onPremiseUser')
         DB_PASSWORD = credentials('onPremisePass')
         APP_PROPERTIES_PATH = '/var/lib/jenkins/workspace/on-premise-deployment-pipeline/src/main/resources/application.properties'
+        imageName = "nahid003/${JOB_NAME}:${BUILD_ID}"
     }
 
     stages {
@@ -54,7 +55,7 @@ pipeline {
         stage('Docker Image Build') {
             steps {
                 script {
-                def imageName = "nahid003/${JOB_NAME}:${BUILD_ID}"
+                # def imageName = "nahid003/${JOB_NAME}:${BUILD_ID}"
                 dockerImage = docker.build(imageName)
                 }
             }
