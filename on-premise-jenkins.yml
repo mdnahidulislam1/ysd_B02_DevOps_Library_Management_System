@@ -62,7 +62,7 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 script {
-                    sh 'trivy fs --ignore-unfixed --scanners vuln $WORKSPACE_PATH > trivy.txt'
+                    sh 'trivy fs --ignore-unfixed $WORKSPACE_PATH > trivy.txt'
 
                 }
             }
