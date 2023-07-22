@@ -3,10 +3,6 @@ pipeline {
     tools {
         maven "Maven-3.9.3"
     }
-    options {
-  buildDiscarder logRotator(daysToKeepStr: '1', numToKeepStr: '7')
-}
-   
     environment {
         DB_URL = credentials('onPremiseDbUrl')
         DB_USERNAME = credentials('onPremiseUser')
