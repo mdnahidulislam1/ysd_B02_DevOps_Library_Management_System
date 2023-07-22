@@ -1,0 +1,30 @@
+---
+- name: Update application.properties
+  hosts: ec2
+  gather_facts: no  
+  become: true
+
+  vars:
+    DB_URL: "natan-db.cjldgoxvvwoc.us-west-2.rds.amazonaws.com"
+    DB_USERNAME: "root"
+    DB_PASSWORD: "bjit1234"
+    WORKSPACE_PATH: "/var/lib/jenkins/workspace/test-pipeline"
+
+  tasks:
+    - name: Replace spring.datasource.url in application.properties
+      lineinfile:
+        path: "{{ WORKSPACE_PATH }}/src/main/resources/application.properties"
+        regexp: '^spring\.datasource\.url =.*'
+        line: "spring.datasource.url = {{ DB_URL }}"
+
+    - name: Replace spring.datasource.username in application.properties
+      lineinfile:
+        path: "{{ WORKSPACE_PATH }}/src/main/resources/application.properties"
+        regexp: '^spring\.datasource\.username =.*'
+        line: "spring.datasource.username = {{ DB_USERNAME }}"
+
+    - name: Replace spring.datasource.password in application.properties
+      lineinfile:
+        path: "{{ WORKSPACE_PATH }}/src/main/resources/application.properties"
+        regexp: '^spring\.datasource\.password =.*'
+        line: "spring.datasource.password = {{ DB_PASSWORD }}"
