@@ -1,6 +1,7 @@
 ---
 - name: Modify application.properties content
   hosts: ec2
+  become: true
   gather_facts: false
 
   vars:
