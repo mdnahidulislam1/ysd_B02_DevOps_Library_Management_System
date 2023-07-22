@@ -5,11 +5,13 @@
   connection: local
   become: true
 
+  vars_files:
+    - vault.yml
+
   vars:
     DB_URL: "natan-db.cjldgoxvvwoc.us-west-2.rds.amazonaws.com"
     DB_USERNAME: "root"
-    DB_PASSWORD: "12345678"
-    WORKSPACE_PATH: "/var/lib/jenkins/workspace/test-pipeline"
+    DB_PASSWORD: "{{ db_password }}"
 
   tasks:
     - name: Replace spring.datasource.url in application.properties
