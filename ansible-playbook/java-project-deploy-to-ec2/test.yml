@@ -6,8 +6,8 @@
 
   vars:
     DB_URL: "natan-db.cjldgoxvvwoc.us-west-2.rds.amazonaws.com"
-    DB_USERNAME: "root"
-    DB_PASSWORD: "bjit1234"
+    DB_USERNAME: "nahid"
+    DB_PASSWORD: "12345678"
     WORKSPACE_PATH: "/var/lib/jenkins/workspace/test-pipeline"
 
   tasks:
