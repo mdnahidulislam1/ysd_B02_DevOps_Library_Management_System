@@ -6,10 +6,7 @@ pipeline {
     options {
   buildDiscarder logRotator(daysToKeepStr: '1', numToKeepStr: '7')
 }
-    triggers{
-        pollSCM('H/2 * * * *')
-     }
-
+   
     environment {
         DB_URL = credentials('onPremiseDbUrl')
         DB_USERNAME = credentials('onPremiseUser')
