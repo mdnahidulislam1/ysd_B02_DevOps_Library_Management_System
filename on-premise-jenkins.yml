@@ -3,9 +3,6 @@ pipeline {
     tools {
         maven "Maven-3.9.3"
     }
-     # triggers{
-    #     pollSCM('H/2 * * * *')
-    #  }
     options {
   buildDiscarder logRotator(daysToKeepStr: '1', numToKeepStr: '7')
 }
