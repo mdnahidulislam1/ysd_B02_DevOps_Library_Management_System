@@ -1,13 +1,12 @@
 ---
 - name: Modify application.properties content
   hosts: ec2
-  become: true
   gather_facts: false
 
   vars:
-    DB_URL: "{{ lookup('env', 'DB_URL') }}"
-    DB_USERNAME: "{{ lookup('env', 'DB_USERNAME') }}"
-    DB_PASSWORD: "{{ lookup('env', 'DB_PASSWORD') }}"
+    DB_URL: "natan-db.cjldgoxvvwoc.us-west-2.rds.amazonaws.com"
+    DB_USERNAME: "root"
+    DB_PASSWORD: "bjit1234"
     WORKSPACE_PATH: "/var/lib/jenkins/workspace/aws-deployment-pipeline"
 
   tasks:
